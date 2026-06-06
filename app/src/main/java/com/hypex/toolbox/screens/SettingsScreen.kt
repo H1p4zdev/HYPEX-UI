@@ -1,5 +1,6 @@
 package com.hypex.toolbox.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,6 +17,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BugReport
+import androidx.compose.material.icons.filled.Build
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Language
@@ -29,9 +32,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hypex.toolbox.ui.theme.HypexAccent
@@ -56,38 +63,78 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
         modifier = modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(horizontal = 16.dp)
+            .padding(horizontal = 20.dp)
     ) {
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
-        Text(
-            text = "Settings",
-            fontSize = 28.sp,
-            fontWeight = FontWeight.Bold,
-            color = MiuixTheme.colorScheme.onBackground
-        )
-        Text(
-            text = "App preferences & information",
-            fontSize = 14.sp,
-            color = MiuixTheme.colorScheme.onBackground.copy(alpha = 0.6f)
-        )
+        // ── App Header Card ──
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .graphicsLayer {
+                    shadowElevation = 8f
+                    shape = RoundedCornerShape(24.dp)
+                    clip = true
+                },
+            cornerRadius = 24.dp,
+            colors = CardDefaults.defaultColors(color = Color.Transparent)
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        brush = Brush.verticalGradient(
+                            colors = listOf(
+                                HypexPrimary.copy(alpha = 0.15f),
+                                Color.Transparent
+                            )
+                        )
+                    )
+                    .padding(24.dp)
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Surface(
+                        modifier = Modifier.size(64.dp),
+                        shape = RoundedCornerShape(20.dp),
+                        color = HypexPrimary.copy(alpha = 0.15f)
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Icon(
+                                imageVector = Icons.Default.Build,
+                                contentDescription = null,
+                                tint = HypexPrimary,
+                                modifier = Modifier.size(32.dp)
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        text = "Hypex-UI Toolbox",
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MiuixTheme.colorScheme.onBackground
+                    )
+                    Text(
+                        text = "Version 1.0.0",
+                        fontSize = 14.sp,
+                        color = MiuixTheme.colorScheme.onBackground.copy(alpha = 0.5f)
+                    )
+                }
+            }
+        }
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
         // ── Preferences ──
-        Text(
-            text = "Preferences",
-            fontSize = 13.sp,
-            fontWeight = FontWeight.SemiBold,
-            color = HypexPrimary,
-            modifier = Modifier.padding(start = 4.dp, bottom = 8.dp)
-        )
+        SectionHeader(title = "Preferences", icon = Icons.Default.DarkMode, color = HypexPrimary)
+
+        Spacer(modifier = Modifier.height(10.dp))
 
         Card(
             modifier = Modifier.fillMaxWidth(),
-            cornerRadius = 16.dp,
+            cornerRadius = 18.dp,
             colors = CardDefaults.defaultColors(
-                color = MiuixTheme.colorScheme.surface
+                color = MiuixTheme.colorScheme.surface.copy(alpha = 0.8f)
             )
         ) {
             Column {
@@ -99,7 +146,10 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
                     onCheckedChange = { darkModeEnabled = it },
                     accentColor = Color(0xFF7C4DFF)
                 )
-                SettingsDivider()
+                HorizontalDivider(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    color = MiuixTheme.colorScheme.onSurface.copy(alpha = 0.06f)
+                )
                 SettingsSwitchItem(
                     icon = Icons.Default.Sync,
                     title = "Auto Update",
@@ -108,7 +158,10 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
                     onCheckedChange = { autoUpdateEnabled = it },
                     accentColor = Color(0xFF448AFF)
                 )
-                SettingsDivider()
+                HorizontalDivider(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    color = MiuixTheme.colorScheme.onSurface.copy(alpha = 0.06f)
+                )
                 SettingsSwitchItem(
                     icon = Icons.Default.BugReport,
                     title = "Beta Channel",
@@ -123,19 +176,15 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
         Spacer(modifier = Modifier.height(24.dp))
 
         // ── Data ──
-        Text(
-            text = "Data",
-            fontSize = 13.sp,
-            fontWeight = FontWeight.SemiBold,
-            color = HypexPrimary,
-            modifier = Modifier.padding(start = 4.dp, bottom = 8.dp)
-        )
+        SectionHeader(title = "Data", icon = Icons.Default.Storage, color = HypexSecondary)
+
+        Spacer(modifier = Modifier.height(10.dp))
 
         Card(
             modifier = Modifier.fillMaxWidth(),
-            cornerRadius = 16.dp,
+            cornerRadius = 18.dp,
             colors = CardDefaults.defaultColors(
-                color = MiuixTheme.colorScheme.surface
+                color = MiuixTheme.colorScheme.surface.copy(alpha = 0.8f)
             )
         ) {
             Column {
@@ -145,7 +194,10 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
                     subtitle = "Save spoofing profiles & settings",
                     accentColor = HypexSecondary
                 )
-                SettingsDivider()
+                HorizontalDivider(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    color = MiuixTheme.colorScheme.onSurface.copy(alpha = 0.06f)
+                )
                 SettingsClickItem(
                     icon = Icons.Default.Share,
                     title = "Import Config",
@@ -158,19 +210,15 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
         Spacer(modifier = Modifier.height(24.dp))
 
         // ── About ──
-        Text(
-            text = "About",
-            fontSize = 13.sp,
-            fontWeight = FontWeight.SemiBold,
-            color = HypexPrimary,
-            modifier = Modifier.padding(start = 4.dp, bottom = 8.dp)
-        )
+        SectionHeader(title = "About", icon = Icons.Default.Info, color = Color(0xFFA66CFF))
+
+        Spacer(modifier = Modifier.height(10.dp))
 
         Card(
             modifier = Modifier.fillMaxWidth(),
-            cornerRadius = 16.dp,
+            cornerRadius = 18.dp,
             colors = CardDefaults.defaultColors(
-                color = MiuixTheme.colorScheme.surface
+                color = MiuixTheme.colorScheme.surface.copy(alpha = 0.8f)
             )
         ) {
             Column {
@@ -180,7 +228,10 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
                     subtitle = "Version 1.0.0 • Build 1",
                     accentColor = HypexPrimary
                 )
-                SettingsDivider()
+                HorizontalDivider(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    color = MiuixTheme.colorScheme.onSurface.copy(alpha = 0.06f)
+                )
                 SettingsClickItem(
                     icon = Icons.Default.Language,
                     title = "GitHub",
@@ -192,15 +243,55 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
 
         Spacer(modifier = Modifier.height(32.dp))
 
+        // ── Footer ──
         Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
             Text(
                 text = "Made with ❤️ for HyperOS",
                 fontSize = 13.sp,
-                color = MiuixTheme.colorScheme.onBackground.copy(alpha = 0.3f)
+                color = MiuixTheme.colorScheme.onBackground.copy(alpha = 0.25f),
+                textAlign = TextAlign.Center
             )
         }
+        Text(
+            text = "Hypex-UI v1.0.0",
+            modifier = Modifier.fillMaxWidth(),
+            textAlign = TextAlign.Center,
+            fontSize = 11.sp,
+            color = MiuixTheme.colorScheme.onBackground.copy(alpha = 0.15f)
+        )
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(32.dp))
+    }
+}
+
+@Composable
+private fun SectionHeader(
+    title: String,
+    icon: ImageVector,
+    color: Color
+) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Surface(
+            modifier = Modifier.size(28.dp),
+            shape = RoundedCornerShape(8.dp),
+            color = color.copy(alpha = 0.12f)
+        ) {
+            Box(contentAlignment = Alignment.Center) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = color,
+                    modifier = Modifier.size(16.dp)
+                )
+            }
+        }
+        Spacer(modifier = Modifier.width(10.dp))
+        Text(
+            text = title,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Bold,
+            color = color
+        )
     }
 }
 
@@ -220,8 +311,8 @@ private fun SettingsSwitchItem(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Surface(
-            modifier = Modifier.size(38.dp),
-            shape = RoundedCornerShape(10.dp),
+            modifier = Modifier.size(40.dp),
+            shape = RoundedCornerShape(12.dp),
             color = accentColor.copy(alpha = 0.12f)
         ) {
             Box(contentAlignment = Alignment.Center) {
@@ -239,7 +330,7 @@ private fun SettingsSwitchItem(
             Text(
                 text = subtitle,
                 fontSize = 12.sp,
-                color = MiuixTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                color = MiuixTheme.colorScheme.onSurface.copy(alpha = 0.45f)
             )
         }
         Switch(
@@ -264,8 +355,8 @@ private fun SettingsClickItem(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Surface(
-            modifier = Modifier.size(38.dp),
-            shape = RoundedCornerShape(10.dp),
+            modifier = Modifier.size(40.dp),
+            shape = RoundedCornerShape(12.dp),
             color = accentColor.copy(alpha = 0.12f)
         ) {
             Box(contentAlignment = Alignment.Center) {
@@ -283,16 +374,14 @@ private fun SettingsClickItem(
             Text(
                 text = subtitle,
                 fontSize = 12.sp,
-                color = MiuixTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                color = MiuixTheme.colorScheme.onSurface.copy(alpha = 0.45f)
             )
         }
+        Icon(
+            imageVector = Icons.Default.ChevronRight,
+            contentDescription = null,
+            tint = MiuixTheme.colorScheme.onSurface.copy(alpha = 0.15f),
+            modifier = Modifier.size(20.dp)
+        )
     }
-}
-
-@Composable
-private fun SettingsDivider() {
-    HorizontalDivider(
-        modifier = Modifier.padding(horizontal = 16.dp),
-        color = MiuixTheme.colorScheme.onSurface.copy(alpha = 0.08f)
-    )
 }
