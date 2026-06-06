@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -297,7 +298,7 @@ private val quickActions = listOf(
 )
 
 @Composable
-private fun StatusChip(label: String, color: Color, active: Boolean) {
+private fun RowScope.StatusChip(label: String, color: Color, active: Boolean) {
     val bgColor by animateColorAsState(
         targetValue = if (active) color.copy(alpha = 0.12f) else MiuixTheme.colorScheme.surface.copy(alpha = 0.4f),
         animationSpec = tween(600),

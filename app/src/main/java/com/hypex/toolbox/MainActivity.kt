@@ -1,6 +1,5 @@
 package com.hypex.toolbox
 
-import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -22,15 +21,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
-import androidx.compose.ui.graphics.RenderEffect
-import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
@@ -78,10 +74,6 @@ fun MainScreen() {
                         clip = true
                         ambientShadowColor = Color(0xFF7C4DFF).copy(alpha = 0.20f)
                         spotShadowColor = Color(0xFF7C4DFF).copy(alpha = 0.25f)
-                        // Real-time frosted glass blur via Compose RenderEffect (API 31+, we target 33+)
-                        if (Build.VERSION.SDK_INT >= 33) {
-                            renderEffect = RenderEffect.createBlurEffect(56f, 56f, TileMode.Clamp)
-                        }
                     }
             ) {
                 // Gradient edge glow behind the nav bar surface
@@ -98,9 +90,7 @@ fun MainScreen() {
                                         Color.Transparent,
                                         Color.Transparent,
                                         HypexPrimary.copy(alpha = 0.03f)
-                                    ],
-                                    startX = 0f,
-                                    endX = w
+                                    )
                                 ),
                                 cornerRadius = CornerRadius(32.dp.toPx()),
                                 style = Stroke(width = 2.dp.toPx())
