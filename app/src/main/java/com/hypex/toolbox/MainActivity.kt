@@ -21,6 +21,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import top.yukonga.miuix.kmp.basic.NavigationBar
 import top.yukonga.miuix.kmp.basic.NavigationBarItem
 import top.yukonga.miuix.kmp.basic.Scaffold
+import com.hypex.toolbox.screens.HomeScreen
+import com.hypex.toolbox.screens.SettingsScreen
+import com.hypex.toolbox.screens.SpoofingScreen
+import com.hypex.toolbox.screens.ToolsScreen
 import com.hypex.toolbox.ui.theme.HypexUIToolboxTheme
 
 class MainActivity : ComponentActivity() {
@@ -77,26 +81,6 @@ fun MainScreen() {
             3 -> SettingsScreen(modifier = Modifier.padding(innerPadding))
         }
     }
-}
-
-@Composable
-fun HomeScreen(modifier: Modifier = Modifier) {
-    // TODO: Home screen with device status, integrity check, quick actions
-}
-
-@Composable
-fun SpoofingScreen(modifier: Modifier = Modifier) {
-    // TODO: Spoofing profiles, per-app spoofing, fingerprint management
-}
-
-@Composable
-fun ToolsScreen(modifier: Modifier = Modifier) {
-    // TODO: Tools like payload dumper, debloater, etc.
-}
-
-@Composable
-fun SettingsScreen(modifier: Modifier = Modifier) {
-    // TODO: App settings, about, updates
 }
 
 @Preview(showBackground = true)

@@ -1,0 +1,93 @@
+name: Debug Build
+
+on:
+  push:
+    branches: [ "main", "develop", "master" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      # ═══ Step 1: Checkout ═══
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ═══ Step 2: Set up Java ═══
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      # ═══ Step 3: Set up Android SDK ═══
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      # ═══ Step 4: Install required SDK platforms ═══
+      - name: Install Android SDK platforms
+        run: |
+          echo "y" | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager \
+            "platforms;android-37" \
+            "build-tools;37.0.0" \
+            "platform-tools" || true
+          echo "✅ SDK platforms installed"
+
+      # ═══ Step 5: Setup Gradle with caching ═══
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      # ═══ Step 6: Grant execute permission ═══
+      - name: Grant Gradle permission
+        run: chmod +x gradlew
+
+      # ═══ Step 7: Build APK ═══
+      - name: Build APK
+        id: build
+        run: |
+          echo "📦 Building APK..."
+          ./gradlew assembleDebug --no-daemon 2>&1
+          echo "✅ Build successful!"
+
+      # ═══ Step 8: Run lint checks ═══
+      - name: Run lint
+        if: always()
+        run: |
+          echo "🔍 Running lint checks..."
+          ./gradlew lintDebug --no-daemon 2>&1 || true
+
+      # ═══ Step 9: Upload APK as artifact ═══
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: hypex-ui-toolbox
+          path: app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+          retention-days: 15
+
+      # ═══ Step 10: Upload lint report ═══
+      - name: Upload lint report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lint-report
+          path: app/build/reports/lint-results-*.html
+          if-no-files-found: ignore
+          retention-days: 7
+
+      # ═══ Step 11: Show APK info ═══
+      - name: Show APK details
+        if: success()
+        run: |
+          APK="./app/build/outputs/apk/debug/app-debug.apk"
+          if [ -f "$APK" ]; then
+            SIZE=$(stat -c%s "$APK" 2>/dev/null || stat -f%z "$APK" 2>/dev/null)
+            echo "📱 APK: $APK"
+            echo "📦 Size: $((SIZE / 1024)) KB"
+            echo "✅ Debug build ready for download from artifacts!"
+          fi
