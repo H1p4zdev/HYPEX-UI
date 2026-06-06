@@ -108,6 +108,7 @@ coreKtx = "1.15.0"
 lifecycleRuntime = "2.9.0"
 activityCompose = "1.13.0"
 composeBom = "COMPOSE_BOM_PLACEHOLDER"
+miuix = "0.9.2"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -121,6 +122,9 @@ androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-toolin
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 androidx-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
 androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
+miuix-ui = { group = "top.yukonga.miuix.kmp", name = "miuix-ui", version.ref = "miuix" }
+miuix-icons = { group = "top.yukonga.miuix.kmp", name = "miuix-icons", version.ref = "miuix" }
+miuix-preference = { group = "top.yukonga.miuix.kmp", name = "miuix-preference", version.ref = "miuix" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
@@ -231,6 +235,8 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.material.icons.extended)
+    implementation(libs.miuix.ui)
+    implementation(libs.miuix.icons)
 
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
@@ -302,9 +308,6 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -313,6 +316,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import top.yukonga.miuix.kmp.basic.NavigationBar
+import top.yukonga.miuix.kmp.basic.NavigationBarItem
+import top.yukonga.miuix.kmp.basic.Scaffold
 import PACKAGE_PLACEHOLDER.ui.theme.HypexUIToolboxTheme
 
 class MainActivity : ComponentActivity() {
@@ -408,19 +414,15 @@ package PACKAGE_PLACEHOLDER.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// Primary - Deep Purple (Hypex brand)
-val Purple80 = Color(0xFFD0BCFF)
-val PurpleGrey80 = Color(0xFFCCC2DC)
-val Pink80 = Color(0xFFEFB8C8)
-
-val Purple40 = Color(0xFF6650A4)
-val PurpleGrey40 = Color(0xFF625B71)
-val Pink40 = Color(0xFF7D5260)
-
-// Hypex-UI accent colors
+// Hypex-UI brand accent colors
 val HypexPrimary = Color(0xFF7C4DFF)
 val HypexSecondary = Color(0xFF448AFF)
+val HypexAccent = Color(0xFF00E5FF)
 val HypexBackground = Color(0xFF1A1A2E)
+val HypexSurface = Color(0xFF16213E)
+val HypexSuccess = Color(0xFF4CAF50)
+val HypexWarning = Color(0xFFFFC107)
+val HypexError = Color(0xFFEF5350)
 COLOR_EOF
 
 sed -i "s/PACKAGE_PLACEHOLDER/$PACKAGE_NAME/g" "app/src/main/java/$PACKAGE_PATH/ui/theme/Color.kt"
@@ -464,47 +466,62 @@ sed -i "s/PACKAGE_PLACEHOLDER/$PACKAGE_NAME/g" "app/src/main/java/$PACKAGE_PATH/
 create_file "app/src/main/java/$PACKAGE_PATH/ui/theme/Theme.kt" <<- 'THEME_EOF'
 package PACKAGE_PLACEHOLDER.ui.theme
 
-import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.runtime.remember
+import androidx.compose.ui.graphics.Color
+import top.yukonga.miuix.kmp.theme.ColorSchemeMode
+import top.yukonga.miuix.kmp.theme.MiuixTheme
+import top.yukonga.miuix.kmp.theme.ThemeController
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+    primary = HypexPrimary,
+    secondary = HypexSecondary,
+    tertiary = HypexAccent,
+    background = HypexBackground,
+    surface = HypexSurface,
+    error = HypexError,
+    onPrimary = Color.White,
+    onSecondary = Color.White,
+    onTertiary = Color.Black,
+    onBackground = Color.White,
+    onSurface = Color.White,
+    onError = Color.White
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
+    primary = HypexPrimary,
+    secondary = HypexSecondary,
+    tertiary = HypexAccent,
+    background = Color(0xFFF5F5F5),
+    surface = Color.White,
+    error = HypexError,
+    onPrimary = Color.White,
+    onSecondary = Color.White,
+    onTertiary = Color.Black,
+    onBackground = Color(0xFF1C1B1F),
+    onSurface = Color(0xFF1C1B1F),
+    onError = Color.White
 )
 
 @Composable
 fun HypexUIToolboxTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context)
-            else dynamicLightColorScheme(context)
-        }
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
+    val controller = remember {
+        ThemeController(
+            mode = ColorSchemeMode.MonetSystem,
+            keyColor = HypexPrimary
+        )
     }
+    val colors = if (darkTheme) DarkColorScheme else LightColorScheme
 
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = Typography,
+    MiuixTheme(
+        controller = controller,
+        colors = colors,
         content = content
     )
 }
