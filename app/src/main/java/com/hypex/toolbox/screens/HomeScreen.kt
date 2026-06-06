@@ -143,12 +143,14 @@ private fun checkIntegrity(): IntegrityResult {
 
 @Composable
 fun HomeScreen(modifier: Modifier = Modifier) {
-    var result by remember { mutableStateOf(checkIntegrity()) }        Column(
-            modifier = modifier
-                .fillMaxSize()
-                .scrollEndHaptic()
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 20.dp),
+    var result by remember { mutableStateOf(checkIntegrity()) }
+
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .scrollEndHaptic()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 20.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         Spacer(modifier = Modifier.height(12.dp))
