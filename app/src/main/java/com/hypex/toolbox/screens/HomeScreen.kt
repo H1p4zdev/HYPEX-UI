@@ -51,6 +51,8 @@ import androidx.compose.ui.unit.sp
 import com.hypex.toolbox.ui.theme.HypexAccent
 import com.hypex.toolbox.ui.theme.HypexError
 import com.hypex.toolbox.ui.theme.HypexPrimary
+import top.yukonga.miuix.kmp.utils.overScrollHorizontal
+import top.yukonga.miuix.kmp.utils.scrollEndHaptic
 import com.hypex.toolbox.ui.theme.HypexSecondary
 import com.hypex.toolbox.ui.theme.HypexSuccess
 import com.hypex.toolbox.ui.theme.HypexWarning
@@ -141,13 +143,12 @@ private fun checkIntegrity(): IntegrityResult {
 
 @Composable
 fun HomeScreen(modifier: Modifier = Modifier) {
-    var result by remember { mutableStateOf(checkIntegrity()) }
-
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = 20.dp),
+    var result by remember { mutableStateOf(checkIntegrity()) }        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .scrollEndHaptic()
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 20.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         Spacer(modifier = Modifier.height(12.dp))
@@ -331,6 +332,7 @@ fun HomeScreen(modifier: Modifier = Modifier) {
         SmallTitle(text = "Quick Actions")
 
         LazyRow(
+            modifier = Modifier.overScrollHorizontal(),
             horizontalArrangement = Arrangement.spacedBy(10.dp),
             contentPadding = PaddingValues(horizontal = 0.dp)
         ) {
