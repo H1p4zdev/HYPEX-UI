@@ -104,8 +104,8 @@ create_file "gradle/libs.versions.toml" <<- 'CATALOG_EOF'
 [versions]
 agp = "AGP_VERSION_PLACEHOLDER"
 kotlin = "KOTLIN_VERSION_PLACEHOLDER"
-coreKtx = "1.19.0"
-lifecycleRuntime = "2.11.0"
+coreKtx = "1.15.0"
+lifecycleRuntime = "2.9.0"
 activityCompose = "1.13.0"
 composeBom = "COMPOSE_BOM_PLACEHOLDER"
 
