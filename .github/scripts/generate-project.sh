@@ -21,12 +21,12 @@ MIN_SDK="${MIN_SDK:-26}"
 TARGET_SDK="${TARGET_SDK:-35}"
 COMPILE_SDK="${COMPILE_SDK:-35}"
 
-AGP_VERSION="${AGP_VERSION:-8.7.3}"
-KOTLIN_VERSION="${KOTLIN_VERSION:-2.1.0}"
+AGP_VERSION="${AGP_VERSION:-9.2.0}"
+KOTLIN_VERSION="${KOTLIN_VERSION:-2.4.0}"
 
 # Derive Gradle version from AGP version
-GRADLE_VERSION="8.11.1"
-COMPOSE_BOM_VERSION="2024.12.01"
+GRADLE_VERSION="9.5.1"
+COMPOSE_BOM_VERSION="2026.05.00"
 COMPILE_SDK_INT=$COMPILE_SDK
 
 echo "  App name:    $APP_NAME"
@@ -105,9 +105,9 @@ create_file "gradle/libs.versions.toml" <<- 'CATALOG_EOF'
 [versions]
 agp = "AGP_VERSION_PLACEHOLDER"
 kotlin = "KOTLIN_VERSION_PLACEHOLDER"
-coreKtx = "1.15.0"
-lifecycleRuntime = "2.8.7"
-activityCompose = "1.9.3"
+coreKtx = "1.19.0"
+lifecycleRuntime = "2.11.0"
+activityCompose = "1.13.0"
 composeBom = "COMPOSE_BOM_PLACEHOLDER"
 
 [libraries]
@@ -217,11 +217,10 @@ android {
     }
 }
 
-kotlin {
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
     compilerOptions {
         jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
     }
-}
 }
 
 dependencies {

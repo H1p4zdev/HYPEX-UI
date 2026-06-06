@@ -31,17 +31,17 @@ on:
       agp_version:
         description: 'Android Gradle Plugin version'
         required: true
-        default: '8.7.3'
+        default: '9.2.0'
         type: string
       kotlin_version:
         description: 'Kotlin version'
         required: true
-        default: '2.1.0'
+        default: '2.4.0'
         type: string
       gradle_version:
         description: 'Gradle version'
         required: true
-        default: '8.11.1'
+        default: '9.5.1'
         type: string
       create_tag:
         description: 'Create a git tag after generation?'
