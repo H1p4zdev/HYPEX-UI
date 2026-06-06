@@ -86,7 +86,6 @@ SETTINGS_EOF
 create_file "build.gradle.kts" <<- 'ROOT_BUILD_EOF'
 plugins {
     alias(libs.plugins.android.application) apply false
-    alias(libs.plugins.kotlin.android) apply false
     alias(libs.plugins.kotlin.compose) apply false
 }
 ROOT_BUILD_EOF
@@ -125,7 +124,6 @@ androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-man
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 CATALOG_EOF
 
@@ -179,7 +177,6 @@ echo "── Creating app module ──"
 create_file "app/build.gradle.kts" <<- 'APP_BUILD_EOF'
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
 }
 
