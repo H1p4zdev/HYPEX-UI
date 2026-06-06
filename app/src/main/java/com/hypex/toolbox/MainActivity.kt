@@ -55,6 +55,8 @@ fun MainScreen() {
     var selectedTab by remember { mutableIntStateOf(0) }
     val navBackdrop = rememberLayerBackdrop()
 
+    val surfaceColor = MiuixTheme.colorScheme.surface
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         bottomBar = {
@@ -66,8 +68,6 @@ fun MainScreen() {
                         shadowElevation = 16f
                         shape = RoundedCornerShape(24.dp)
                         clip = true
-                        ambientShadowAlpha = 0.4f
-                        spotShadowAlpha = 0.4f
                     }
                     .drawBackdrop(
                         backdrop = navBackdrop,
@@ -79,7 +79,7 @@ fun MainScreen() {
                                 colors = BlurDefaults.blurColors(
                                     blendColors = listOf(
                                         BlendColorEntry(
-                                            color = MiuixTheme.colorScheme.surface.copy(alpha = 0.55f)
+                                            color = surfaceColor.copy(alpha = 0.55f)
                                         )
                                     )
                                 )
@@ -87,7 +87,7 @@ fun MainScreen() {
                         }
                     ),
                 shape = RoundedCornerShape(24.dp),
-                color = MiuixTheme.colorScheme.surface.copy(alpha = 0.75f)
+                color = surfaceColor.copy(alpha = 0.75f)
             ) {
                 NavigationBar(
                     modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
