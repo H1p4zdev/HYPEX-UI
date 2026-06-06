@@ -1,0 +1,103 @@
+{
+  "devices": [
+    {
+      "name": "Pixel 8 Pro",
+      "BRAND": "google",
+      "DEVICE": "husky",
+      "MANUFACTURER": "Google",
+      "MODEL": "Pixel 8 Pro",
+      "FINGERPRINT": "google/husky/husky:15/BP1A.250405.005.B1/13151136:user/release-keys",
+      "PRODUCT": "husky"
+    },
+    {
+      "name": "Pixel 9 Pro XL",
+      "BRAND": "google",
+      "DEVICE": "komodo",
+      "MANUFACTURER": "Google",
+      "MODEL": "Pixel 9 Pro XL",
+      "FINGERPRINT": "google/komodo/komodo:15/BP1A.250405.005.A1/13151424:user/release-keys",
+      "PRODUCT": "komodo"
+    },
+    {
+      "name": "Pixel 9 Pro",
+      "BRAND": "google",
+      "DEVICE": "caiman",
+      "MANUFACTURER": "Google",
+      "MODEL": "Pixel 9 Pro",
+      "FINGERPRINT": "google/caiman_beta/caiman:CinnamonBun/CP31.260423.012.A1/15327290:user/release-keys",
+      "PRODUCT": "caiman_beta"
+    },
+    {
+      "name": "Samsung Galaxy S24 Ultra",
+      "BRAND": "Samsung",
+      "DEVICE": "Galaxy S24 Ultra",
+      "MANUFACTURER": "Samsung",
+      "MODEL": "SM-S928B",
+      "FINGERPRINT": "samsung/SM-S928B/SM-S928B:14/UP1A.231005.007/20240225:user/release-keys",
+      "PRODUCT": "SM-S928B"
+    },
+    {
+      "name": "Samsung Galaxy S25 Ultra",
+      "BRAND": "samsung",
+      "DEVICE": "Samsung Galaxy S25 Ultra",
+      "MANUFACTURER": "samsung",
+      "MODEL": "SM-S938B",
+      "FINGERPRINT": "samsung/pa3qxxx/pa3q:15/AP3A.240905.015.A2/S938BXXU1AYB4:user/release-keys",
+      "PRODUCT": "pa3qxxx"
+    },
+    {
+      "name": "Xiaomi 14 Ultra",
+      "BRAND": "Xiaomi",
+      "DEVICE": "Xiaomi 14 Ultra",
+      "MANUFACTURER": "Xiaomi",
+      "MODEL": "24030PN60G",
+      "FINGERPRINT": "Xiaomi/aurora_eea/aurora:14/UKQ1.240523.001/OS2.0.102.0.VNAEUXM:user/release-keys",
+      "PRODUCT": "aurora"
+    },
+    {
+      "name": "Xiaomi 15 Ultra",
+      "BRAND": "Xiaomi",
+      "DEVICE": "Xiaomi 15 Ultra",
+      "MANUFACTURER": "Xiaomi",
+      "MODEL": "25010PN30G",
+      "FINGERPRINT": "Xiaomi/xuanyuan_eea/xuanyuan:15/AQ3A.240912.001/OS2.0.10.0.VOAEUXM:user/release-keys",
+      "PRODUCT": "xuanyuan"
+    },
+    {
+      "name": "OnePlus 13",
+      "BRAND": "OnePlus",
+      "DEVICE": "OnePlus 13",
+      "MANUFACTURER": "OnePlus",
+      "MODEL": "PJD110",
+      "FINGERPRINT": "OnePlus/PJD110/OP5D0DL1:15/AP3A.240617.008/V.1bd19a1-1-2:user/release-keys",
+      "PRODUCT": "PJD110"
+    },
+    {
+      "name": "ASUS ROG Phone 9",
+      "BRAND": "asus",
+      "DEVICE": "ROG Phone 9",
+      "MANUFACTURER": "asus",
+      "MODEL": "ASUSAI2501",
+      "FINGERPRINT": "asus/WWAI2501/ASUSAI2501:15/AQ3A.240829.003/35.1810.1810.346-0:user/release-keys",
+      "PRODUCT": "ASUSAI2501"
+    },
+    {
+      "name": "RedMagic 10 Pro",
+      "BRAND": "nubia",
+      "DEVICE": "RedMagic 10 Pro",
+      "MANUFACTURER": "ZTE",
+      "MODEL": "NX789J",
+      "FINGERPRINT": "nubia/NX789J-UN/NX789J:15/AQ3A.240812.002/20241212.194919:user/release-keys",
+      "PRODUCT": "NX789J"
+    },
+    {
+      "name": "Realme 15 Pro 5G",
+      "BRAND": "realme",
+      "DEVICE": "Realme 15 Pro 5G",
+      "MANUFACTURER": "realme",
+      "MODEL": "RMX5101",
+      "FINGERPRINT": "realme/RMX5101IN/RE60B4L1:15/AP3A.240617.008/V.R4T2.26cec0e-80bb4e-80b757:user/release-keys",
+      "PRODUCT": "RMX5101"
+    }
+  ]
+}

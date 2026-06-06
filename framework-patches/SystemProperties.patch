@@ -1,0 +1,64 @@
+--- a/core/java/android/os/SystemProperties.java
++++ b/core/java/android/os/SystemProperties.java
+@@ -16,12 +16,62 @@
+
+ package android.os;
+
++import java.io.File;
++import java.io.FileReader;
++import java.util.HashMap;
++import org.json.JSONObject;
++import org.json.JSONTokener;
++
+ public class SystemProperties {
+ 
+     private static final int PROP_NAME_MAX = 31;
+     private static final int PROP_VALUE_MAX = 91;
+ 
++    // Hypex-UI Spoofing: cache of spoofed properties
++    private static HashMap<String, String> sSpoofedProps = null;
++    private static boolean sSpoofInitDone = false;
++
++    private static void initSpoofing() {
++        if (sSpoofInitDone) return;
++        sSpoofInitDone = true;
++        sSpoofedProps = new HashMap<>();
++        try {
++            File configFile = new File("/data/system/hypex/pif.json");
++            if (configFile.exists()) {
++                FileReader reader = new FileReader(configFile);
++                JSONObject json = new JSONObject(new JSONTokener(reader));
++                reader.close();
++
++                // Map PIF props to system properties
++                putIfExists(json, "FINGERPRINT", "ro.build.fingerprint");
++                putIfExists(json, "MODEL", "ro.product.model");
++                putIfExists(json, "MANUFACTURER", "ro.product.manufacturer");
++                putIfExists(json, "BRAND", "ro.product.brand");
++                putIfExists(json, "PRODUCT", "ro.product.name");
++                putIfExists(json, "DEVICE", "ro.product.device");
++                putIfExists(json, "SECURITY_PATCH", "ro.build.version.security_patch");
++            }
++        } catch (Exception e) {
++            // Config not found - use real values
++        }
++    }
++
++    private static void putIfExists(JSONObject json, String key, String prop) {
++        if (json.has(key)) {
++            sSpoofedProps.put(prop, json.optString(key));
++        }
++    }
++
++    // Hook into the native get method
++    public static String get(String key, String def) {
++        initSpoofing();
++        if (sSpoofedProps != null && sSpoofedProps.containsKey(key)) {
++            return sSpoofedProps.get(key);
++        }
++        return native_get(key, def);
++    }
++
+     // Original native methods (kept intact)
++    private static native String native_get(String key, String def);
+ }

@@ -1,0 +1,13 @@
+{
+  "BRAND": "google",
+  "DEVICE": "komodo",
+  "FINGERPRINT": "google/komodo/komodo:15/BP1A.250405.005.A1/13151424:user/release-keys",
+  "ID": "BP1A.250405.005.A1",
+  "MANUFACTURER": "Google",
+  "MODEL": "Pixel 9 Pro XL",
+  "PRODUCT": "komodo",
+  "RELEASE": "15",
+  "SECURITY_PATCH": "2025-04-05",
+  "TAGS": "release-keys",
+  "TYPE": "user"
+}

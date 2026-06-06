@@ -1,0 +1,15 @@
+{
+  "com.google.android.gms": {
+    "MANUFACTURER": "Google",
+    "MODEL": "Pixel 9 Pro XL",
+    "FINGERPRINT": "google/komodo/komodo:15/BP1A.250405.005.A1/13151424:user/release-keys"
+  },
+  "com.netflix.mediaclient": {
+    "MANUFACTURER": "Google",
+    "MODEL": "Pixel 9 Pro XL"
+  },
+  "com.google.android.apps.photos": {
+    "MANUFACTURER": "Google",
+    "MODEL": "Pixel 9 Pro XL"
+  }
+}
