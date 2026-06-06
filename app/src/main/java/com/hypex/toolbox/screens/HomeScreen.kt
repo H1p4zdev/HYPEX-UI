@@ -1,10 +1,9 @@
 package com.hypex.toolbox.screens
 
+import android.os.Build
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,6 +27,7 @@ import androidx.compose.material.icons.filled.Android
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Security
@@ -46,7 +46,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hypex.toolbox.ui.theme.HypexAccent
@@ -55,16 +54,94 @@ import com.hypex.toolbox.ui.theme.HypexPrimary
 import com.hypex.toolbox.ui.theme.HypexSecondary
 import com.hypex.toolbox.ui.theme.HypexSuccess
 import com.hypex.toolbox.ui.theme.HypexWarning
+import top.yukonga.miuix.kmp.basic.Button
+import top.yukonga.miuix.kmp.basic.ButtonDefaults
 import top.yukonga.miuix.kmp.basic.Card
 import top.yukonga.miuix.kmp.basic.CardDefaults
 import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.SmallTitle
 import top.yukonga.miuix.kmp.basic.Surface
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 
+// ── Real device info using Android Build class ──
+private data class DeviceInfo(
+    val model: String = Build.MODEL,
+    val manufacturer: String = Build.MANUFACTURER,
+    val brand: String = Build.BRAND,
+    val board: String = Build.BOARD,
+    val fingerprint: String = Build.FINGERPRINT,
+    val display: String = Build.DISPLAY,
+    val androidVersion: String = Build.VERSION.RELEASE,
+    val securityPatch: String = Build.VERSION.SECURITY_PATCH,
+    val buildType: String = Build.TYPE,
+    val tags: String = Build.TAGS,
+    val bootloader: String = Build.BOOTLOADER,
+    val sdkInt: Int = Build.VERSION.SDK_INT,
+)
+
+// ── Integrity check result ──
+private data class IntegrityResult(
+    val basicPassed: Boolean,
+    val devicePassed: Boolean,
+    val strongPassed: Boolean,
+    val details: List<String>,
+    val isBootloaderUnlocked: Boolean,
+)
+
+private fun checkIntegrity(): IntegrityResult {
+    val deviceInfo = DeviceInfo()
+    val details = mutableListOf<String>()
+    var bootloaderUnlocked = false
+
+    // Check 1: BASIC — device has verified boot / release-keys
+    val hasReleaseKeys = deviceInfo.tags.contains("release-keys", ignoreCase = true)
+    val basicPassed = hasReleaseKeys
+
+    if (!hasReleaseKeys) {
+        details.add("Build tags: ${deviceInfo.tags} (expected release-keys)")
+    }
+
+    // Check 2: DEVICE — proper user build
+    val isUserBuild = deviceInfo.buildType == "user"
+    val devicePassed = hasReleaseKeys && isUserBuild
+
+    if (!isUserBuild) {
+        details.add("Build type: ${deviceInfo.buildType} (expected user)")
+    }
+
+    // Check 3: STRONG — typically requires verified boot state (locked bootloader)
+    // We approximate by checking if bootloader is locked
+    bootloaderUnlocked = try {
+        val bootloaderState = deviceInfo.bootloader
+        // If bootloader is empty or contains a version, it may be locked.
+        // An unlocked bootloader often has "unlocked" in the string or is non-empty with "unknown"
+        bootloaderState.contains("unlocked", ignoreCase = true) ||
+            bootloaderState.isBlank() ||
+            bootloaderState.contains("unknown", ignoreCase = true)
+    } catch (_: Exception) {
+        true // assume unlocked if we can't determine
+    }
+
+    val strongPassed = devicePassed && !bootloaderUnlocked
+
+    if (bootloaderUnlocked) {
+        details.add("Bootloader may be unlocked")
+    }
+
+    return IntegrityResult(
+        basicPassed = basicPassed,
+        devicePassed = devicePassed,
+        strongPassed = strongPassed,
+        details = details,
+        isBootloaderUnlocked = bootloaderUnlocked,
+    )
+}
+
 @Composable
 fun HomeScreen(modifier: Modifier = Modifier) {
-    var checkResult by remember { mutableStateOf("Checking...") }
+    var result by remember { mutableStateOf(checkIntegrity()) }
 
     Column(
         modifier = modifier
@@ -77,31 +154,30 @@ fun HomeScreen(modifier: Modifier = Modifier) {
 
         // ── Hero Header ──
         Text(
-            text = "Good evening,",
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Normal,
-            color = MiuixTheme.colorScheme.onBackground.copy(alpha = 0.6f)
-        )
-        Text(
-            text = "Hypex Toolbox",
+            text = "Device Overview",
             fontSize = 30.sp,
             fontWeight = FontWeight.Bold,
-            color = MiuixTheme.colorScheme.onBackground,
-            modifier = Modifier.padding(bottom = 4.dp)
+            color = MiuixTheme.colorScheme.onBackground
+        )
+        Text(
+            text = "${Build.MANUFACTURER} ${Build.MODEL}",
+            fontSize = 15.sp,
+            color = MiuixTheme.colorScheme.onBackground.copy(alpha = 0.6f)
         )
 
-        // ── Hero Integrity Card ──
+        // ── Hero Integrity Card (fixed: uses proper Miuix surfaceContainer instead of transparent) ──
         Card(
             modifier = Modifier
                 .fillMaxWidth()
                 .graphicsLayer {
-                    shadowElevation = 12f
+                    shadowElevation = 8f
                     shape = RoundedCornerShape(24.dp)
                     clip = true
                 },
             cornerRadius = 24.dp,
+            insideMargin = PaddingValues(0.dp),
             colors = CardDefaults.defaultColors(
-                color = Color.Transparent
+                color = MiuixTheme.colorScheme.surface
             )
         ) {
             Box(
@@ -110,131 +186,152 @@ fun HomeScreen(modifier: Modifier = Modifier) {
                     .background(
                         brush = Brush.verticalGradient(
                             colors = listOf(
-                                HypexPrimary.copy(alpha = 0.25f),
-                                HypexPrimary.copy(alpha = 0.05f)
+                                HypexPrimary.copy(alpha = 0.12f),
+                                Color.Transparent
                             )
                         )
                     )
-                    .padding(24.dp)
+                    .padding(20.dp)
             ) {
                 Column {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Surface(
-                            modifier = Modifier.size(48.dp),
-                            shape = RoundedCornerShape(16.dp),
-                            color = HypexSuccess.copy(alpha = 0.15f)
+                            modifier = Modifier.size(44.dp),
+                            shape = RoundedCornerShape(14.dp),
+                            color = HypexSuccess.copy(alpha = 0.12f)
                         ) {
                             Box(contentAlignment = Alignment.Center) {
                                 Icon(
                                     imageVector = Icons.Default.VerifiedUser,
                                     contentDescription = null,
                                     tint = HypexSuccess,
-                                    modifier = Modifier.size(26.dp)
+                                    modifier = Modifier.size(24.dp)
                                 )
                             }
                         }
-                        Spacer(modifier = Modifier.width(16.dp))
+                        Spacer(modifier = Modifier.width(14.dp))
                         Column {
                             Text(
                                 text = "Play Integrity",
-                                fontSize = 20.sp,
+                                fontSize = 18.sp,
                                 fontWeight = FontWeight.Bold
                             )
                             Text(
-                                text = "Google Play Services",
-                                fontSize = 13.sp,
+                                text = "API ${Build.VERSION.SDK_INT}",
+                                fontSize = 12.sp,
                                 color = MiuixTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                             )
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(20.dp))
 
                     // Animated status badges
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
-                        StatusChip("BASIC", HypexSuccess, true)
-                        StatusChip("DEVICE", HypexSuccess, true)
-                        StatusChip("STRONG", HypexError, false)
+                        StatusChip("BASIC", if (result.basicPassed) HypexSuccess else HypexWarning, result.basicPassed)
+                        StatusChip("DEVICE", if (result.devicePassed) HypexSuccess else HypexWarning, result.devicePassed)
+                        StatusChip("STRONG", if (result.strongPassed) HypexSuccess else HypexError, result.strongPassed)
                     }
 
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    // Warning banner
-                    Surface(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(14.dp)),
-                        color = HypexWarning.copy(alpha = 0.12f),
-                        shape = RoundedCornerShape(14.dp)
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(14.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Android,
-                                contentDescription = null,
-                                tint = HypexWarning,
-                                modifier = Modifier.size(18.dp)
-                            )
-                            Spacer(modifier = Modifier.width(10.dp))
-                            Text(
-                                text = "Bootloader unlocked — STRONG unavailable",
-                                fontSize = 12.sp,
-                                color = HypexWarning,
-                                fontWeight = FontWeight.Medium
-                            )
+                    if (result.details.isNotEmpty()) {
+                        Spacer(modifier = Modifier.height(14.dp))
+                        result.details.forEach { detail ->
+                            Surface(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(bottom = 6.dp)
+                                    .clip(RoundedCornerShape(10.dp)),
+                                color = HypexWarning.copy(alpha = 0.08f),
+                                shape = RoundedCornerShape(10.dp)
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Info,
+                                        contentDescription = null,
+                                        tint = HypexWarning,
+                                        modifier = Modifier.size(14.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(
+                                        text = detail,
+                                        fontSize = 12.sp,
+                                        color = HypexWarning.copy(alpha = 0.9f)
+                                    )
+                                }
+                            }
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    // Re-check button
-                    Surface(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { checkResult = "Checking..." }
-                            .clip(RoundedCornerShape(14.dp)),
-                        color = HypexPrimary.copy(alpha = 0.12f),
-                        shape = RoundedCornerShape(14.dp)
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(vertical = 12.dp),
-                            horizontalArrangement = Arrangement.Center,
-                            verticalAlignment = Alignment.CenterVertically
+                    // Bootloader warning
+                    if (result.isBootloaderUnlocked) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Surface(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(10.dp)),
+                            color = HypexWarning.copy(alpha = 0.08f),
+                            shape = RoundedCornerShape(10.dp)
                         ) {
-                            Icon(
-                                imageVector = Icons.Default.Refresh,
-                                contentDescription = null,
-                                tint = HypexPrimary,
-                                modifier = Modifier.size(18.dp)
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                text = "Check Integrity",
-                                fontSize = 13.sp,
-                                fontWeight = FontWeight.SemiBold,
-                                color = HypexPrimary
-                            )
+                            Row(
+                                modifier = Modifier.padding(12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Android,
+                                    contentDescription = null,
+                                    tint = HypexWarning,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                                Spacer(modifier = Modifier.width(10.dp))
+                                Text(
+                                    text = "Bootloader may be unlocked",
+                                    fontSize = 12.sp,
+                                    color = HypexWarning,
+                                    fontWeight = FontWeight.Medium
+                                )
+                            }
                         }
+                    }
+
+                    Spacer(modifier = Modifier.height(14.dp))
+
+                    // Miuix Button for re-check
+                    Button(
+                        onClick = { result = checkIntegrity() },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColorsPrimary(
+                            color = HypexPrimary
+                        ),
+                        cornerRadius = 14.dp,
+                        insideMargin = PaddingValues(vertical = 10.dp),
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Refresh,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "Check Integrity",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
                     }
                 }
             }
         }
 
-        // ── Quick Actions — horizontal pill row ──
-        Text(
-            text = "Quick Actions",
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold,
-            color = MiuixTheme.colorScheme.onBackground
-        )
+        // ── Quick Actions ──
+        SmallTitle(text = "Quick Actions")
 
         LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
             contentPadding = PaddingValues(horizontal = 0.dp)
         ) {
             items(quickActions) { action ->
@@ -242,38 +339,122 @@ fun HomeScreen(modifier: Modifier = Modifier) {
             }
         }
 
-        // ── Active Profile ──
-        Text(
-            text = "Active Profile",
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold,
-            color = MiuixTheme.colorScheme.onBackground
-        )
+        // ── Device Info details──
+        SmallTitle(text = "Device Details")
 
-        ActiveProfileCard()
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .graphicsLayer {
+                    shadowElevation = 4f
+                    shape = RoundedCornerShape(20.dp)
+                    clip = true
+                },
+            cornerRadius = 20.dp,
+            colors = CardDefaults.defaultColors(
+                color = MiuixTheme.colorScheme.surface.copy(alpha = 0.8f)
+            )
+        ) {
+            Column(modifier = Modifier.padding(4.dp)) {
+                DetailRow("Model", Build.MODEL)
+                DetailRow("Manufacturer", Build.MANUFACTURER)
+                DetailRow("Brand", Build.BRAND)
+                DetailRow("Android", "API ${Build.VERSION.SDK_INT} · ${Build.VERSION.RELEASE}")
+                DetailRow("Security Patch", Build.VERSION.SECURITY_PATCH)
+                DetailRow("Build Type", Build.TYPE)
+                DetailRow("Tags", Build.TAGS)
+                DetailRow("Bootloader", Build.BOOTLOADER)
+                DetailRow("Display", Build.DISPLAY)
+            }
+        }
 
-        // ── Quick Stats ──
-        Text(
-            text = "Device Info",
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold,
-            color = MiuixTheme.colorScheme.onBackground
-        )
+        // ── Active Profile (real device info, no dummy data) ──
+        SmallTitle(text = "Active Profile")
+
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .graphicsLayer {
+                    shadowElevation = 4f
+                    shape = RoundedCornerShape(20.dp)
+                    clip = true
+                },
+            cornerRadius = 20.dp,
+            colors = CardDefaults.defaultColors(
+                color = MiuixTheme.colorScheme.surface.copy(alpha = 0.8f)
+            )
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Surface(
+                    modifier = Modifier.size(50.dp),
+                    shape = RoundedCornerShape(14.dp),
+                    color = HypexPrimary.copy(alpha = 0.12f)
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(
+                            imageVector = Icons.Default.PhoneAndroid,
+                            contentDescription = null,
+                            tint = HypexPrimary,
+                            modifier = Modifier.size(26.dp)
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.width(14.dp))
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = Build.MODEL,
+                        fontSize = 17.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = "${Build.MANUFACTURER} · ${Build.BOARD} · ${Build.DISPLAY.take(30)}",
+                        fontSize = 11.sp,
+                        color = MiuixTheme.colorScheme.onSurface.copy(alpha = 0.45f),
+                        maxLines = 1,
+                    )
+                }
+                // Miuix IconButton for refresh
+                IconButton(
+                    onClick = { result = checkIntegrity() },
+                    backgroundColor = HypexPrimary.copy(alpha = 0.1f),
+                    cornerRadius = 12.dp,
+                    minWidth = 36.dp,
+                    minHeight = 36.dp,
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Refresh,
+                        contentDescription = "Refresh",
+                        tint = HypexPrimary,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+            }
+        }
+
+        // ── Jumplinks row (replaces StatCard with useful links) ──
+        SmallTitle(text = "Jump To")
 
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            StatCard(
-                label = "Android Version",
-                value = "15",
+            JumpCard(
+                label = "Spoofing Profiles",
+                value = "Spoof device identity",
+                icon = Icons.Default.Security,
                 color = HypexSecondary,
                 modifier = Modifier.weight(1f)
             )
-            StatCard(
-                label = "Security Patch",
-                value = "June 2026",
-                color = HypexSuccess,
+            JumpCard(
+                label = "System Tools",
+                value = "Props, debloat, more",
+                icon = Icons.Default.Build,
+                color = HypexPrimary,
                 modifier = Modifier.weight(1f)
             )
         }
@@ -281,6 +462,8 @@ fun HomeScreen(modifier: Modifier = Modifier) {
         Spacer(modifier = Modifier.height(24.dp))
     }
 }
+
+// ── Data ──
 
 private data class QuickAction(
     val icon: ImageVector,
@@ -297,6 +480,8 @@ private val quickActions = listOf(
     QuickAction(Icons.Default.ArrowForward, "More", Color(0xFF78909C))
 )
 
+// ── Reusable composables ──
+
 @Composable
 private fun RowScope.StatusChip(label: String, color: Color, active: Boolean) {
     val bgColor by animateColorAsState(
@@ -312,12 +497,12 @@ private fun RowScope.StatusChip(label: String, color: Color, active: Boolean) {
     Surface(
         modifier = Modifier
             .weight(1f)
-            .clip(RoundedCornerShape(12.dp)),
+            .clip(RoundedCornerShape(10.dp)),
         color = bgColor,
-        shape = RoundedCornerShape(12.dp)
+        shape = RoundedCornerShape(10.dp)
     ) {
         Column(
-            modifier = Modifier.padding(vertical = 10.dp),
+            modifier = Modifier.padding(vertical = 8.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
@@ -329,8 +514,8 @@ private fun RowScope.StatusChip(label: String, color: Color, active: Boolean) {
             Spacer(modifier = Modifier.height(2.dp))
             Box(
                 modifier = Modifier
-                    .size(8.dp)
-                    .clip(RoundedCornerShape(4.dp))
+                    .size(6.dp)
+                    .clip(RoundedCornerShape(3.dp))
                     .background(if (active) color else Color.Transparent)
             )
         }
@@ -341,18 +526,17 @@ private fun RowScope.StatusChip(label: String, color: Color, active: Boolean) {
 private fun PillActionCard(action: QuickAction) {
     Surface(
         modifier = Modifier
-            .clip(RoundedCornerShape(20.dp))
-            .clickable { },
-        shape = RoundedCornerShape(20.dp),
+            .clip(RoundedCornerShape(18.dp)),
+        shape = RoundedCornerShape(18.dp),
         color = MiuixTheme.colorScheme.surface.copy(alpha = 0.8f)
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 18.dp, vertical = 14.dp),
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Surface(
-                modifier = Modifier.size(36.dp),
-                shape = RoundedCornerShape(12.dp),
+                modifier = Modifier.size(34.dp),
+                shape = RoundedCornerShape(10.dp),
                 color = action.color.copy(alpha = 0.12f)
             ) {
                 Box(contentAlignment = Alignment.Center) {
@@ -360,14 +544,14 @@ private fun PillActionCard(action: QuickAction) {
                         imageVector = action.icon,
                         contentDescription = null,
                         tint = action.color,
-                        modifier = Modifier.size(20.dp)
+                        modifier = Modifier.size(18.dp)
                     )
                 }
             }
             Spacer(modifier = Modifier.width(10.dp))
             Text(
                 text = action.label,
-                fontSize = 14.sp,
+                fontSize = 13.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = MiuixTheme.colorScheme.onSurface
             )
@@ -376,78 +560,36 @@ private fun PillActionCard(action: QuickAction) {
 }
 
 @Composable
-private fun ActiveProfileCard() {
-    Card(
+private fun DetailRow(label: String, value: String) {
+    Row(
         modifier = Modifier
             .fillMaxWidth()
-            .graphicsLayer {
-                shadowElevation = 6f
-                shape = RoundedCornerShape(20.dp)
-                clip = true
-            },
-        cornerRadius = 20.dp,
-        colors = CardDefaults.defaultColors(
-            color = MiuixTheme.colorScheme.surface.copy(alpha = 0.75f)
-        )
+            .padding(horizontal = 16.dp, vertical = 10.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(18.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Surface(
-                modifier = Modifier.size(52.dp),
-                shape = RoundedCornerShape(16.dp),
-                color = HypexPrimary.copy(alpha = 0.12f)
-            ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Icon(
-                        imageVector = Icons.Default.PhoneAndroid,
-                        contentDescription = null,
-                        tint = HypexPrimary,
-                        modifier = Modifier.size(28.dp)
-                    )
-                }
-            }
-            Spacer(modifier = Modifier.width(16.dp))
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = "Pixel 9 Pro XL",
-                    fontSize = 17.sp,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    text = "Google • komodo • BP1A.250405.005.A1",
-                    fontSize = 12.sp,
-                    color = MiuixTheme.colorScheme.onSurface.copy(alpha = 0.45f)
-                )
-            }
-            Surface(
-                modifier = Modifier
-                    .size(36.dp)
-                    .clip(RoundedCornerShape(10.dp))
-                    .clickable { },
-                shape = RoundedCornerShape(10.dp),
-                color = HypexPrimary.copy(alpha = 0.1f)
-            ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Icon(
-                        imageVector = Icons.Default.Refresh,
-                        contentDescription = "Switch",
-                        tint = HypexPrimary,
-                        modifier = Modifier.size(20.dp)
-                    )
-                }
-            }
-        }
+        Text(
+            text = label,
+            fontSize = 13.sp,
+            color = MiuixTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+            fontWeight = FontWeight.Medium
+        )
+        Text(
+            text = value,
+            fontSize = 13.sp,
+            color = MiuixTheme.colorScheme.onSurface,
+            fontWeight = FontWeight.SemiBold,
+            maxLines = 1,
+            modifier = Modifier.padding(start = 16.dp)
+        )
     }
 }
 
 @Composable
-private fun StatCard(
+private fun JumpCard(
     label: String,
     value: String,
+    icon: ImageVector,
     color: Color,
     modifier: Modifier = Modifier
 ) {
@@ -459,12 +601,16 @@ private fun StatCard(
                 clip = true
             },
         cornerRadius = 16.dp,
+        insideMargin = PaddingValues(0.dp),
         colors = CardDefaults.defaultColors(
-            color = MiuixTheme.colorScheme.surface.copy(alpha = 0.75f)
+            color = MiuixTheme.colorScheme.surface.copy(alpha = 0.8f)
         )
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Surface(
                 modifier = Modifier.size(36.dp),
@@ -473,25 +619,27 @@ private fun StatCard(
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Icon(
-                        imageVector = Icons.Default.Android,
+                        imageVector = icon,
                         contentDescription = null,
                         tint = color,
                         modifier = Modifier.size(20.dp)
                     )
                 }
             }
-            Spacer(modifier = Modifier.height(14.dp))
-            Text(
-                text = value,
-                fontSize = 22.sp,
-                fontWeight = FontWeight.Bold,
-                color = MiuixTheme.colorScheme.onSurface
-            )
-            Text(
-                text = label,
-                fontSize = 12.sp,
-                color = MiuixTheme.colorScheme.onSurface.copy(alpha = 0.5f)
-            )
+            Spacer(modifier = Modifier.width(12.dp))
+            Column {
+                Text(
+                    text = label,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MiuixTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = value,
+                    fontSize = 11.sp,
+                    color = MiuixTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                )
+            }
         }
     }
 }
