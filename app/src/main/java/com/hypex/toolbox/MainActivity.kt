@@ -31,7 +31,7 @@ import top.yukonga.miuix.kmp.basic.NavigationBarItem
 import top.yukonga.miuix.kmp.basic.Scaffold
 import top.yukonga.miuix.kmp.basic.Surface
 import top.yukonga.miuix.kmp.blur.BlendColorEntry
-import top.yukonga.miuix.kmp.blur.BlurDefaults
+import top.yukonga.miuix.kmp.blur.BlurColors
 import top.yukonga.miuix.kmp.blur.drawBackdrop
 import top.yukonga.miuix.kmp.blur.layerBackdrop
 import top.yukonga.miuix.kmp.blur.rememberLayerBackdrop
@@ -76,7 +76,7 @@ fun MainScreen() {
                             textureBlurEffect(
                                 blurRadiusX = 30f,
                                 blurRadiusY = 30f,
-                                colors = BlurDefaults.blurColors(
+                                colors = BlurColors(
                                     blendColors = listOf(
                                         BlendColorEntry(
                                             color = surfaceColor.copy(alpha = 0.55f)

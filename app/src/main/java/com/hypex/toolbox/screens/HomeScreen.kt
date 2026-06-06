@@ -242,7 +242,7 @@ fun HomeScreen(modifier: Modifier = Modifier) {
 private fun GlassCard(
     modifier: Modifier = Modifier,
     gradientColors: List<Color> = emptyList(),
-    content: @Composable Column.() -> Unit
+    content: @Composable () -> Unit
 ) {
     Card(
         modifier = modifier
@@ -269,7 +269,7 @@ private fun GlassCard(
                 )
                 .padding(20.dp)
         ) {
-            Column(content = content)
+            content()
         }
     }
 }

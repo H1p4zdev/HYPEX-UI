@@ -39,8 +39,10 @@ import top.yukonga.miuix.kmp.basic.SearchBar
 import top.yukonga.miuix.kmp.basic.Surface
 import top.yukonga.miuix.kmp.basic.TabRow
 import top.yukonga.miuix.kmp.basic.Text
-import top.yukonga.miuix.kmp.icon.MiuixIcons
 import top.yukonga.miuix.kmp.theme.MiuixTheme
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Search
 
 data class DeviceProfile(
     val name: String,
@@ -137,7 +139,7 @@ fun SpoofingScreen(modifier: Modifier = Modifier) {
                     label = "Search devices...",
                     leadingIcon = {
                         Icon(
-                            imageVector = MiuixIcons.Basic.Search,
+                            imageVector = Icons.Default.Search,
                             contentDescription = "Search",
                             tint = MiuixTheme.colorScheme.onSurfaceContainerHigh
                         )
@@ -284,7 +286,7 @@ private fun DeviceProfileCard(
                     ) {
                         Box(contentAlignment = Alignment.Center) {
                             Icon(
-                                imageVector = MiuixIcons.Basic.Check,
+                                imageVector = Icons.Default.Check,
                                 contentDescription = "Apply",
                                 tint = HypexSuccess,
                                 modifier = Modifier.size(20.dp)
