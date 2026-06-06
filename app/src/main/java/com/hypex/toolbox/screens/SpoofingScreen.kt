@@ -1,8 +1,5 @@
 package com.hypex.toolbox.screens
 
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,42 +16,33 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.PhoneAndroid
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.hypex.toolbox.ui.theme.HypexAccent
 import com.hypex.toolbox.ui.theme.HypexPrimary
 import com.hypex.toolbox.ui.theme.HypexSuccess
-import com.hypex.toolbox.ui.theme.HypexWarning
+import top.yukonga.miuix.kmp.basic.Card
+import top.yukonga.miuix.kmp.basic.CardDefaults
+import top.yukonga.miuix.kmp.basic.CircularProgressIndicator
+import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.InputField
+import top.yukonga.miuix.kmp.basic.SearchBar
+import top.yukonga.miuix.kmp.basic.Surface
+import top.yukonga.miuix.kmp.basic.TabRow
+import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.theme.MiuixTheme
+import top.yukonga.miuix.kmp.icon.extended.Check
+import top.yukonga.miuix.kmp.icon.basic.Search
+
 data class DeviceProfile(
     val name: String,
     val brand: String,
@@ -97,6 +85,7 @@ fun SpoofingScreen(modifier: Modifier = Modifier) {
     var selectedCategory by remember { mutableIntStateOf(0) }
     var selectedDeviceIndex by remember { mutableIntStateOf(-1) }
     var isApplying by remember { mutableStateOf(false) }
+    var searchExpanded by remember { mutableStateOf(false) }
 
     val filteredProfiles = remember(searchQuery, selectedCategory) {
         deviceProfiles.filter { profile ->
@@ -127,81 +116,50 @@ fun SpoofingScreen(modifier: Modifier = Modifier) {
             text = "Spoofing Profiles",
             fontSize = 28.sp,
             fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onBackground
+            color = MiuixTheme.colorScheme.onBackground
         )
         Text(
             text = "${deviceProfiles.size} devices available",
             fontSize = 14.sp,
-            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // ── Search Bar ──
-        TextField(
-            value = searchQuery,
-            onValueChange = { searchQuery = it },
-            placeholder = {
-                Text("Search devices...", color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f))
-            },
-            leadingIcon = {
-                Icon(Icons.Default.Search, contentDescription = null, tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
-            },
-            trailingIcon = {
-                if (searchQuery.isNotEmpty()) {
-                    IconButton(onClick = { searchQuery = "" }) {
-                        Icon(Icons.Default.Close, contentDescription = "Clear")
-                    }
-                }
-            },
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(16.dp),
-            colors = TextFieldDefaults.colors(
-                focusedContainerColor = MaterialTheme.colorScheme.surface,
-                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent
-            ),
-            singleLine = true
+            color = MiuixTheme.colorScheme.onBackground.copy(alpha = 0.6f)
         )
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // ── Category Chips ──
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            categories.forEachIndexed { index, category ->
-                val isSelected = selectedCategory == index
-                val chipColor by animateColorAsState(
-                    targetValue = if (isSelected) HypexPrimary else MaterialTheme.colorScheme.surface,
-                    animationSpec = tween(300)
-                )
-                FilterChip(
-                    selected = isSelected,
-                    onClick = { selectedCategory = index },
-                    label = {
-                        Text(
-                            text = category,
-                            fontSize = 13.sp,
-                            fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
-                            color = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+        // ── Miuix Search Bar with InputField ──
+        SearchBar(
+            inputField = {
+                InputField(
+                    query = searchQuery,
+                    onQueryChange = { searchQuery = it },
+                    onSearch = { },
+                    expanded = searchExpanded,
+                    onExpandedChange = { searchExpanded = it },
+                    label = "Search devices...",
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Search,
+                            contentDescription = "Search",
+                            tint = MiuixTheme.colorScheme.onSurfaceContainerHigh
                         )
-                    },
-                    colors = FilterChipDefaults.filterChipColors(
-                        containerColor = chipColor,
-                        selectedContainerColor = HypexPrimary
-                    ),
-                    border = FilterChipDefaults.filterChipBorder(
-                        borderColor = HypexPrimary.copy(alpha = 0.3f),
-                        selectedBorderColor = HypexPrimary,
-                        enabled = true,
-                        selected = isSelected
-                    )
+                    }
                 )
-            }
-        }
+            },
+            expanded = searchExpanded,
+            onExpandedChange = { searchExpanded = it },
+            modifier = Modifier.fillMaxWidth(),
+            content = {}
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // ── Miuix Tab Row ──
+        TabRow(
+            tabs = categories,
+            selectedTabIndex = selectedCategory,
+            onTabSelected = { selectedCategory = it },
+            modifier = Modifier.fillMaxWidth()
+        )
 
         Spacer(modifier = Modifier.height(12.dp))
 
@@ -219,14 +177,13 @@ fun SpoofingScreen(modifier: Modifier = Modifier) {
                     isApplying = isApplying && isSelected,
                     onClick = {
                         selectedDeviceIndex = if (isSelected) -1 else index
+                        isApplying = false
                     },
                     onApply = {
                         isApplying = true
-                        // TODO: Implement actual spoof apply logic
                     }
                 )
             }
-
             if (filteredProfiles.isEmpty()) {
                 item {
                     Box(
@@ -237,7 +194,7 @@ fun SpoofingScreen(modifier: Modifier = Modifier) {
                     ) {
                         Text(
                             text = "No devices found",
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
+                            color = MiuixTheme.colorScheme.onSurface.copy(alpha = 0.4f),
                             fontSize = 16.sp
                         )
                     }
@@ -255,99 +212,80 @@ private fun DeviceProfileCard(
     onClick: () -> Unit,
     onApply: () -> Unit
 ) {
-    val borderColor by animateColorAsState(
-        targetValue = if (isSelected) HypexPrimary else Color.Transparent,
-        animationSpec = tween(300)
-    )
-
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() },
-        shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = if (isSelected) 4.dp else 1.dp
-        ),
-        colors = CardDefaults.cardColors(
-            containerColor = if (isSelected)
-                HypexPrimary.copy(alpha = 0.05f)
-            else
-                MaterialTheme.colorScheme.surface
+        cornerRadius = 16.dp,
+        colors = CardDefaults.defaultColors(
+            color = if (isSelected) HypexPrimary.copy(alpha = 0.06f)
+            else MiuixTheme.colorScheme.surface
         )
     ) {
-        Box(
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 4.dp)
-                .background(
-                    color = borderColor.takeIf { isSelected } ?: Color.Transparent,
-                    shape = RoundedCornerShape(topStart = 16.dp, bottomStart = 16.dp)
-                )
+                .padding(14.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(14.dp),
-                verticalAlignment = Alignment.CenterVertically
+            // Brand icon
+            Surface(
+                modifier = Modifier.size(44.dp),
+                shape = RoundedCornerShape(12.dp),
+                color = brandColor(profile.brand).copy(alpha = 0.12f)
             ) {
-                // Brand icon
-                Box(
-                    modifier = Modifier
-                        .size(44.dp)
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(brandColor(profile.brand).copy(alpha = 0.12f)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.PhoneAndroid,
-                        contentDescription = null,
-                        tint = brandColor(profile.brand),
-                        modifier = Modifier.size(22.dp)
-                    )
-                }
-
-                Spacer(modifier = Modifier.width(14.dp))
-
-                Column(modifier = Modifier.weight(1f)) {
+                Box(contentAlignment = Alignment.Center) {
                     Text(
-                        text = profile.name,
+                        text = profile.brand.take(2).uppercase(),
                         fontSize = 16.sp,
-                        fontWeight = FontWeight.SemiBold
+                        fontWeight = FontWeight.Bold,
+                        color = brandColor(profile.brand)
                     )
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            text = profile.manufacturer,
-                            fontSize = 12.sp,
-                            color = brandColor(profile.brand),
-                            fontWeight = FontWeight.Medium
-                        )
-                        Text(
-                            text = " • ${profile.model}",
-                            fontSize = 12.sp,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
-                        )
-                    }
                 }
+            }
 
-                // Selected checkmark or apply button
-                if (isSelected) {
-                    if (isApplying) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(24.dp),
-                            strokeWidth = 2.dp,
-                            color = HypexPrimary
-                        )
-                    } else {
-                        Box(
-                            modifier = Modifier
-                                .size(36.dp)
-                                .clip(RoundedCornerShape(10.dp))
-                                .background(HypexSuccess.copy(alpha = 0.15f))
-                                .clickable { onApply() },
-                            contentAlignment = Alignment.Center
-                        ) {
+            Spacer(modifier = Modifier.width(14.dp))
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = profile.name,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = profile.manufacturer,
+                        fontSize = 12.sp,
+                        color = brandColor(profile.brand),
+                        fontWeight = FontWeight.Medium
+                    )
+                    Text(
+                        text = " • ${profile.model}",
+                        fontSize = 12.sp,
+                        color = MiuixTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                    )
+                }
+            }
+
+            // Selection indicator
+            if (isSelected) {
+                if (isApplying) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        strokeWidth = 3.dp,
+                        size = 24.dp
+                    )
+                } else {
+                    Surface(
+                        modifier = Modifier
+                            .size(36.dp)
+                            .clickable { onApply() },
+                        shape = RoundedCornerShape(10.dp),
+                        color = HypexSuccess.copy(alpha = 0.15f)
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
                             Icon(
-                                imageVector = Icons.Default.Check,
+                                imageVector = Check,
                                 contentDescription = "Apply",
                                 tint = HypexSuccess,
                                 modifier = Modifier.size(20.dp)

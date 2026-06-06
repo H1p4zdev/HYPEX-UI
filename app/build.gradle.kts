@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId = "com.hypex.toolbox"
-        minSdk = 26
+        minSdk = 33
         targetSdk = 37
         versionCode = 1
         versionName = "1.0.0"
@@ -57,6 +57,7 @@ dependencies {
     implementation(libs.miuix.ui)
     implementation(libs.miuix.icons)
     implementation(libs.miuix.preference)
+    implementation(libs.miuix.blur)
     implementation(libs.miuix.squircle)
 
     debugImplementation(libs.androidx.ui.tooling)
