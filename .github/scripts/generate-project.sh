@@ -18,8 +18,8 @@ PACKAGE_NAME="${PACKAGE_NAME:-com.hypex.toolbox}"
 PACKAGE_PATH="${PACKAGE_NAME//.//}"
 
 MIN_SDK="${MIN_SDK:-26}"
-TARGET_SDK="${TARGET_SDK:-35}"
-COMPILE_SDK="${COMPILE_SDK:-35}"
+TARGET_SDK="${TARGET_SDK:-37}"
+COMPILE_SDK="${COMPILE_SDK:-37}"
 
 AGP_VERSION="${AGP_VERSION:-9.2.0}"
 KOTLIN_VERSION="${KOTLIN_VERSION:-2.4.0}"
@@ -307,8 +307,6 @@ import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -344,26 +342,26 @@ fun MainScreen() {
                 NavigationBarItem(
                     selected = selectedTab == 0,
                     onClick = { selectedTab = 0 },
-                    icon = { Icon(Icons.Default.Home, contentDescription = "Home") },
-                    label = { Text("Home") }
+                    icon = Icons.Default.Home,
+                    label = "Home"
                 )
                 NavigationBarItem(
                     selected = selectedTab == 1,
                     onClick = { selectedTab = 1 },
-                    icon = { Icon(Icons.Default.Security, contentDescription = "Spoofing") },
-                    label = { Text("Spoofing") }
+                    icon = Icons.Default.Security,
+                    label = "Spoofing"
                 )
                 NavigationBarItem(
                     selected = selectedTab == 2,
                     onClick = { selectedTab = 2 },
-                    icon = { Icon(Icons.Default.Build, contentDescription = "Tools") },
-                    label = { Text("Tools") }
+                    icon = Icons.Default.Build,
+                    label = "Tools"
                 )
                 NavigationBarItem(
                     selected = selectedTab == 3,
                     onClick = { selectedTab = 3 },
-                    icon = { Icon(Icons.Default.Settings, contentDescription = "Settings") },
-                    label = { Text("Settings") }
+                    icon = Icons.Default.Settings,
+                    label = "Settings"
                 )
             }
         }
@@ -466,62 +464,25 @@ sed -i "s/PACKAGE_PLACEHOLDER/$PACKAGE_NAME/g" "app/src/main/java/$PACKAGE_PATH/
 create_file "app/src/main/java/$PACKAGE_PATH/ui/theme/Theme.kt" <<- 'THEME_EOF'
 package PACKAGE_PLACEHOLDER.ui.theme
 
-import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.graphics.Color
 import top.yukonga.miuix.kmp.theme.ColorSchemeMode
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 import top.yukonga.miuix.kmp.theme.ThemeController
 
-private val DarkColorScheme = darkColorScheme(
-    primary = HypexPrimary,
-    secondary = HypexSecondary,
-    tertiary = HypexAccent,
-    background = HypexBackground,
-    surface = HypexSurface,
-    error = HypexError,
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.Black,
-    onBackground = Color.White,
-    onSurface = Color.White,
-    onError = Color.White
-)
-
-private val LightColorScheme = lightColorScheme(
-    primary = HypexPrimary,
-    secondary = HypexSecondary,
-    tertiary = HypexAccent,
-    background = Color(0xFFF5F5F5),
-    surface = Color.White,
-    error = HypexError,
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.Black,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    onError = Color.White
-)
-
 @Composable
 fun HypexUIToolboxTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
     val controller = remember {
         ThemeController(
-            mode = ColorSchemeMode.MonetSystem,
+            colorSchemeMode = ColorSchemeMode.MonetSystem,
             keyColor = HypexPrimary
         )
     }
-    val colors = if (darkTheme) DarkColorScheme else LightColorScheme
 
     MiuixTheme(
         controller = controller,
-        colors = colors,
         content = content
     )
 }

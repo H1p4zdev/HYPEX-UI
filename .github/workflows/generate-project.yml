@@ -21,12 +21,12 @@ on:
       target_sdk:
         description: 'Target SDK version'
         required: true
-        default: '35'
+        default: '37'
         type: number
       compile_sdk:
         description: 'Compile SDK version'
         required: true
-        default: '35'
+        default: '37'
         type: number
       agp_version:
         description: 'Android Gradle Plugin version'
